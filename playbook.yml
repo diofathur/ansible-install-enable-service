@@ -1,0 +1,60 @@
+- name: install apache 2 mariadb php dan php mysql
+  hosts: webservers
+  become: true
+  tasks: 
+    - name: apache2 package installed
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+        name: apache2
+        state: latest
+    - name: apache2 started and enabled
+      service:
+        name: apache2
+        enabled: true
+        state: started
+
+    - name: mariadb installed
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+        name: mariadb-server
+        state: latest
+    
+    - name: mariadb enabled
+      service:
+        name: mariadb
+        enabled: true
+        state: started
+
+    - name: php install 
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+        name: php
+        state: latest
+
+    - name: php-mysql install
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+        name: php-mysql
+        state: latest
+
+    - name: copy file 
+      copy:
+        src: index.php
+        dest: /var/www/html/index.php
+
+- name: verify 
+  hosts: localhost
+  tasks:
+    - name: Ensure the webserver is reacheable
+      uri:
+        url: http://pod-diofathurr-managed2
+        status_code: 200
+        return_content: yes
+      register: Resutl
+    - name: print output webserver
+      debug:
+        var: Result.content
